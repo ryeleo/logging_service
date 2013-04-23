@@ -51,16 +51,15 @@ int main(int argc, char **argv){
 
 
 int run_backend(){
-    int i,      // the log iterator
-        ret;    
-    char *log_buffer;
+    int i, ret;    
+
     while (1) {
 
         // cycle through each log
         for (i=0x00000001 ; i < 0x80000000 ; i = i << 1) {
             
             // check if log i needs to be opened
-            if (active_open & i != 0) { // there is content to be written
+            if ((LoggingService.active_open & i) != 0) { // there is content to be written
                 ret = s_open_log(i);
                 if (ret == -1 && silent_mode != 'Y')
                     printf("Unable to open log: %d:%s", 
@@ -68,7 +67,7 @@ int run_backend(){
             }
             
             // check if log i has any buffered content that needs to be written to file
-            if (active_buffer & i != 0) { // there is content to be written
+            if ((LoggingService.active_buffer & i) != 0) { // there is content to be written
                 ret = s_print_to_log(i);
                 if (ret == -1 && silent_mode != 'Y')
                     printf("Unable to write to log: %d:%s", 
@@ -76,7 +75,7 @@ int run_backend(){
             }
 
             // check if log i needs to be closed
-            if (active_close & i != 0) { // there is content to be written
+            if ((LoggingService.active_close & i) != 0) { // there is content to be written
                 ret = s_close_log(i);
                 if (ret == -1 && silent_mode != 'Y')
                     printf("Unable to close log: %d:%s", 
