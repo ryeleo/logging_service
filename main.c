@@ -62,14 +62,14 @@ int run_backend(){
             // check if log i needs to be opened
             
             // check if log i has any buffered content that needs to be written to file
-            log_buffer = LoggingService.log_buffers[i];
+            log_buffer = LoggingService.log_buffers[log_index(i)];
             if (log_buffer == NULL || log_buffer[0] == '\0') // there is nothing to be written to file
                 continue;
             else { // there is something to be written to file
                 ret = s_print_to_log(log_buffer, i);
                 if (ret == -1 && silent_mode != 'Y')
                     printf("Unable to write to log: %d:%s", 
-                        i, LoggingService.log_filenames[i]);
+                        i, LoggingService.log_filenames[log_index(i)]);
             }
 
             // check if log i needs to be closed
