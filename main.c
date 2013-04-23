@@ -60,19 +60,28 @@ int run_backend(){
         for (i=0x00000001 ; i < 0x80000000 ; i << 1) {
             
             // check if log i needs to be opened
+            if (active_open & i != 0) { // there is content to be written
+                ret = s_open_log(i);
+                if (ret == -1 && silent_mode != 'Y')
+                    printf("Unable to open log: %d:%s", 
+                        log_index(i), LoggingService.log_filenames[log_index(i)]);
+            }
             
             // check if log i has any buffered content that needs to be written to file
-            log_buffer = LoggingService.log_buffers[log_index(i)];
-            if (log_buffer == NULL || log_buffer[0] == '\0') // there is nothing to be written to file
-                continue;
-            else { // there is something to be written to file
-                ret = s_print_to_log(log_buffer, i);
+            if (active_buffer & i != 0) { // there is content to be written
+                ret = s_print_to_log(i);
                 if (ret == -1 && silent_mode != 'Y')
                     printf("Unable to write to log: %d:%s", 
-                        i, LoggingService.log_filenames[log_index(i)]);
+                        log_index(i), LoggingService.log_filenames[log_index(i)]);
             }
 
             // check if log i needs to be closed
+            if (active_close & i != 0) { // there is content to be written
+                ret = s_close_log(i);
+                if (ret == -1 && silent_mode != 'Y')
+                    printf("Unable to close log: %d:%s", 
+                        log_index(i), LoggingService.log_filenames[log_index(i)]);
+            }
         }
     }
 }
