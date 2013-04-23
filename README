@@ -1,0 +1,83 @@
+2013 -- Ryan Leonard <ryan.leonard71@gmail.com>
+
+##########################################################################################
+########## Description of logging_service
+##########################################################################################
+The logging_service will run a daemon in user-space that can be accessed via a 
+set of globally viewable functions defined by the API in the logging.h. The
+basic functionality provided will include opening a log file, closing a log
+file, and printing to a log file.
+
+
+##########################################################################################
+########## Building the logging_service daemon
+##########################################################################################
+To build the logging_service daemon, simply run `make` in this directory.
+
+
+##########################################################################################
+########## Running logging_service daemon
+##########################################################################################
+To run the logging_service daemon, run the logging_service executable. This 
+will start up a child daemon process that will run indefinitely unless killed 
+by sending either the . The 
+logging_service executable will by default print any errors it hits to stdout.
+If you wish to disable this behaviour, 
+
+
+##########################################################################################
+########## Killing logging_service daemon
+##########################################################################################
+$ kill `ps -ef | grep logging_service | grep -v grep | awk ‘{print $2}’` 
+
+
+##########################################################################################
+########## Example of using logging_service daemon in your C-code
+##########################################################################################
+A typical use case of logging services is laid out below with example code.
+
+1. Run logging_service
+2. Run example
+########## example.c
+
+int (*print_to_log)(char *message, int log);
+int (*close_log)(int log);
+int (*open_log)(char *file_name);
+/*
+This function will find the global pointers to the logging_service and allow
+the user to use the functions declared by the function pointers above.
+*/
+int init_logging();
+
+int main(){
+    int log1, log2, ret;
+
+    init_logging();
+
+    ret = open_log("~/firstlog.txt");
+    if (ret != -1)
+        log1 = ret;
+    else 
+        printf("Error when opening log.");
+
+    ret = print_to_log("This is my first message", log1);
+    if (ret == -1)
+        printf("Error when printing to log.");
+
+    ret = print_to_log("This is my second message", log1);
+    if (ret == -1)
+        printf("Error when printing to log.");
+    
+    ret = close_log(log1);
+    if (ret != -1)
+        log1 = ret;
+    else 
+        printf("Error when opening log.");
+
+}
+
+int init_logging(){
+     
+    // XXX TODO
+    return 0;
+}
