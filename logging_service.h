@@ -26,8 +26,8 @@ struct LoggingService{
 /******************************************************************************/
 /* Public facing API functions */
 /******************************************************************************/
-int print_to_log(char *message, int log);
-int close_log(int log);
+void print_to_log(char *message, int log);
+void close_log(int log);
 int open_log(char *file_name);
 
 

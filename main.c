@@ -57,7 +57,7 @@ int run_backend(){
     while (1) {
 
         // cycle through each log
-        for (i=0x00000001 ; i < 0x80000000 ; i << 1) {
+        for (i=0x00000001 ; i < 0x80000000 ; i = i << 1) {
             
             // check if log i needs to be opened
             if (active_open & i != 0) { // there is content to be written
