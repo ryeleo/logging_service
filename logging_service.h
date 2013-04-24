@@ -39,7 +39,7 @@ int s_print_to_log(int log);
 int s_close_log(int log);
 int s_open_log(int log);
 int init_logging_service();
-int exit_logging_service();
+void exit_logging_service();
 int log_index(int log);
 
 #endif/*__LOGGING_SERVICE_H__*/
