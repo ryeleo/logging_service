@@ -8,5 +8,8 @@ CFLAGS= -g -Wall
 default: logging_service.h
 	$(CC) $(CFLAGS) -L$(CLIBS) -I$(INCLUDE) logging_service.c main.c -o logging_service
 
+test: logging_service.h
+	$(CC) $(CFLAGS) -L
+
 clean:
 	rm *.o logging_serice

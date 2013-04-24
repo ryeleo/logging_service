@@ -74,10 +74,12 @@ int main(){
     else 
         printf("Error when opening log.");
 
+    fork()
+        child, run logging service
 }
 
 int init_logging(){
-     
+    kallsyms();     
     // XXX TODO
     return 0;
 }

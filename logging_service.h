@@ -3,6 +3,7 @@
 
 #ifndef __LOGGING_SERVICE_H__
 #define __LOGGING_SERVICE_H__
+#define LOGGING_EXE "./logging_service"
 #define MAX_STRLEN_FILENAME 512
 #define MAX_BUFFER_SIZE 4056
 #define MAX_ACTIVE_LOGS sizeof(int)*8

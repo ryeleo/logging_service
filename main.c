@@ -5,40 +5,19 @@
 #include <unistd.h>
 #include "logging_service.h"
 
-/*
-*/
-int run_backend();
-static void usage(char **argv);
+#define BUFFER_P    0
+#define FNAME_P     1
+#define A_CLOSE_P   2
+#define A_BUFFER_P  3
+#define ERROR_P     4
 
-char silent_mode = 'N';
+int run_backend();
+
 
 int main(int argc, char **argv){
-    int ret;
-
-    // parse options at command line
-    while ((ret = getopt(argc, argv, "s")) != -1)
-    {
-        switch (ret)
-        {
-            case 's':
-                silent_mode = 'Y';
-                break;
-            default:
-                usage(argv);
-                exit(0);
-        }
-    }
-
-
-    // startup as daemon
-    ret = fork();
-    if (ret > 0) { // if we are the parent
-        exit(0); 
-    } else if (ret < 0) { // if there was an error
-        printf("Error deamonizing logging_service");
-        exit(-1); 
-    }   
-    ret = run_backend();
+    int pipes[5];
+    pipes = (int*) argv;
+    ret = run_backend(pipes);
     if (ret == -1) {
         printf("Error running logging_service daemon");
         exit(-1);
@@ -50,7 +29,7 @@ int main(int argc, char **argv){
 } // END main
 
 
-int run_backend(){
+int run_backend(int *pipes){
     int i, ret;    
 
     while (1) {
@@ -61,7 +40,7 @@ int run_backend(){
             // check if log i needs to be opened
             if ((LoggingService.active_open & i) != 0) { // there is content to be written
                 ret = s_open_log(i);
-                if (ret == -1 && silent_mode != 'Y')
+                if (ret == -1)
                     printf("Unable to open log: %d:%s", 
                         log_index(i), LoggingService.log_filenames[log_index(i)]);
             }
@@ -69,7 +48,7 @@ int run_backend(){
             // check if log i has any buffered content that needs to be written to file
             if ((LoggingService.active_buffer & i) != 0) { // there is content to be written
                 ret = s_print_to_log(i);
-                if (ret == -1 && silent_mode != 'Y')
+                if (ret == -1)
                     printf("Unable to write to log: %d:%s", 
                         log_index(i), LoggingService.log_filenames[log_index(i)]);
             }
@@ -77,7 +56,7 @@ int run_backend(){
             // check if log i needs to be closed
             if ((LoggingService.active_close & i) != 0) { // there is content to be written
                 ret = s_close_log(i);
-                if (ret == -1 && silent_mode != 'Y')
+                if (ret == -1)
                     printf("Unable to close log: %d:%s", 
                         log_index(i), LoggingService.log_filenames[log_index(i)]);
             }

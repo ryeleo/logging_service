@@ -3,3 +3,81 @@
 There will be support for 31 logs.
 This will run on a simple polling mechanism.
 
+Our parent thread will have to be the kernel module.
+The child thread will be the LoggingService
+
+So we need to use File Descriptors to pipe between the LoggingService and its parent process.
+
+
+    We will treat any population in the buffer_pipe to mean that a log needs to be written to. The log that needs to be written to will be specified in a_buffer_pipe.
+    buffer_pipe     ->  This will pass null terminated (strings) messages
+    filename_pipe   ->  This will pass null terminated (strings) filenames
+    a_close_pipe    ->  (Integers) Log # in binary format
+    a_buffer_pipe   ->  (Integers) Log # in binary format
+    <- error_pipe       (Integers) Return codes in binary format
+
+// There is a special case, if a_close_pipe has the int value -1 sent in binary,
+// we consider that we should flush all buffers and exit the child process
+
+// This function should execute the logging service and setup all pipes needed.
+// After this function is called, pipes should be available from the returned
+// array of file descriptors.
+
+#define BUFFER_P    0
+#define FNAME_P     1
+#define A_CLOSE_P   2
+#define A_BUFFER_P  3
+#define ERROR_P     4
+
+int *init_logging_service(){
+
+    // 1 -> parent; 0 -> child
+    // setup our pipes
+    int args[5];
+    int buffer_pipe[2],
+        filename_pipe[2],
+        a_close_pipe[2],
+        a_buffer_pipe[2],
+        error_pipe[2]
+        *pipes,
+        ret;
+    ret = pipe(buffer_pipe);
+    if (ret == -1)
+        return NULL;
+    ret = pipe(filename_pipe);
+    if (ret == -1)
+        return NULL;
+    ret = pipe(a_close_pipe);
+    if (ret == -1)
+        return NULL;
+    ret = pipe(a_buffer_pipe);
+    if (ret == -1)
+        return NULL;
+    ret = pipe(error_pipe);
+    if (ret == -1)
+        return NULL;
+
+    // setup for return later
+    pipes = malloc(sizeof(int) * 5);
+    if (pipes == NULL)
+        return NULL;
+    pipes[0] = buffer_pipe[0];
+    pipes[1] = filename_pipe[0];
+    pipes[2] = a_close_pipe[0];
+    pipes[3] = a_buffer_pipe[0];
+    pipes[4] = error_pipe[0];
+
+    // lastly, fork off the child process
+    ret = vfork();
+    if (ret == 0) { // We are child -> begin logging service
+        args[0] = buffer_pipe[1];
+        args[1] = filename_pipe[1];
+        args[2] = a_close_pipe[1];
+        args[3] = a_buffer_pipe[1];
+        args[4] = error_pipe[1];
+        execv(LOGGING_EXE, (char **) args);
+    } else if (ret == -1) // Error!
+        return NULL;
+    
+    return pipes;
+} 

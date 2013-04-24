@@ -139,5 +139,3 @@ int log_index(int log){
     else 
         return -1;
 }
-
-#include "logging_service.h"
