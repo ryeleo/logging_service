@@ -30,10 +30,41 @@ int main(int argc, char **argv){
 
 
 int run_backend(int *pipes){
-    int i, ret;    
+    int i, ret, log_d;    
+    char message[MAX_BUFFER_SIZE];
 
     while (1) {
+        // Have to wait here to see if there is any incoming garbage from pipes
+        // using a call to select.
+        ret = select();
+        if (ret == -1)
+            return -1;
 
+        switch () {
+
+            case pipes[FNAME_P]:
+                s_open_log();
+                break;
+
+            case pipes[A_CLOSE_P]:
+                s_close_log(log_d);
+                break;
+
+            case pipes[A_BUFFER_P]:
+                s_print_to_log(message, log_d);
+                break;
+
+            case pipes[BUFFER_P]:
+                s_close_log();
+                break;
+
+            default:
+                return -1;
+                break;
+        }
+
+        
+        /*
         // cycle through each log
         for (i=0x00000001 ; i < 0x80000000 ; i = i << 1) {
             
@@ -61,6 +92,7 @@ int run_backend(int *pipes){
                         log_index(i), LoggingService.log_filenames[log_index(i)]);
             }
         }
+        */
     }
 }
 

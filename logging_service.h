@@ -12,11 +12,11 @@ struct Log{
 };
 
 struct LoggingService{
-    // bitfields
+    // bitfield
     int active_logs;                        // A bit array of the active logs
-    int active_buffer;                      // A bit array indicating that a buffer is active
-    int active_open;                        // A bit array indicating that a log needs to be opened
-    int active_close;                       // A bit array indicating that a log needs to be closed
+    //int active_buffer;                      // A bit array indicating that a buffer is active
+    //int active_open;                        // A bit array indicating that a log needs to be opened
+    //int active_close;                       // A bit array indicating that a log needs to be closed
 
     // variables needed for implementation
     int   log_fds[MAX_ACTIVE_LOGS];         // The file descriptors associated with each open log
@@ -25,20 +25,11 @@ struct LoggingService{
 } LoggingService;
 
 /******************************************************************************/
-/* Public facing API functions */
-/******************************************************************************/
-void print_to_log(char *message, int log);
-void close_log(int log);
-int open_log(char *file_name);
-
-
-
-/******************************************************************************/
 /* Backend functions */
 /******************************************************************************/
-int s_print_to_log(int log);
+int s_print_to_log(char *message, int log);
 int s_close_log(int log);
-int s_open_log(int log);
+int s_open_log(char *fname);
 int init_logging_service();
 void exit_logging_service();
 int log_index(int log);

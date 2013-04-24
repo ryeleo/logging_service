@@ -81,3 +81,21 @@ int *init_logging_service(){
     
     return pipes;
 } 
+
+
+void print_to_log(char *message, int log_d, int *pipes){
+    // write buffer to pipes[BUFFER_P]
+
+    // write log_d to pipes[A_BUFFER_P]
+}
+
+int open_log(char *message, int *pipes){
+    // write fname to pipes[FNAME_P]
+
+    // Check pipes[ERROR_P] to see what the new log_d is 
+    // return the new log_d
+}
+
+void close_log(int log_d, int *pipes){
+    // write log_d to pipes[A_CLOSE_P]
+}

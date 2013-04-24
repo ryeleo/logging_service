@@ -6,55 +6,11 @@
 #include <string.h>
 #include "logging_service.h"
 
-/******************************************************************************/
-/* Public facing API functions */
-/******************************************************************************/
-void print_to_log(char *message, int log){
-    // write the message into log's memory buffer
-    strncat(LoggingService.log_buffers[log_index(log)], message,
-        MAX_BUFFER_SIZE-strlen(LoggingService.log_buffers[log_index(log)]));
-    LoggingService.log_buffers[log_index(log)][MAX_BUFFER_SIZE-1] = '\0';
 
-    // indicate using bitfield that this log needs to have its buffer flushed
-    LoggingService.active_buffer = log | LoggingService.active_buffer;
-}
-
-void close_log(int log){
-    // indicate using bitfield that this log needs to be closed
-    LoggingService.active_close = log | LoggingService.active_close;
-}
-
-int open_log(char *file_name){
-    int log, i;
-
-    // cycle through each possible log number to find an available log to use
-    for (i=0x00000001 ; i < 0x80000000 ; i=i<<1) {
-        if (( i & LoggingService.active_logs) == 0)
-            break;
-    }
-    if (i > 0x80000000) // all logs are actively being used
-        return -1;
-    log = i;
-    
-    // write the filename into log's filename buffer
-    strncpy(LoggingService.log_filenames[log_index(log)], file_name, MAX_STRLEN_FILENAME);
-    LoggingService.log_filenames[log_index(log)][MAX_STRLEN_FILENAME-1] = '\0';
-
-    // indicate using bitfield that this log needs to be opened
-    LoggingService.active_open = i | LoggingService.active_open;
-
-    return 0;
-}
-
-
-
-/******************************************************************************/
-/* Backend functions */
-/******************************************************************************/
-int s_print_to_log(int log){
+int s_print_to_log(char *message, int log){
     int ret;
 
-    // print buffer to log file
+    // print message to log file
     ret = write(LoggingService.log_fds[log_index(log)], 
         LoggingService.log_buffers[log_index(log)], 
         strlen(LoggingService.log_buffers[log_index(log)]));
@@ -86,9 +42,10 @@ int s_close_log(int log){
     return ret;
 }
 
-int s_open_log(int log){
+int s_open_log(char *fname){
     int ret;
 
+    // open fname
     ret = open(LoggingService.log_filenames[log_index(log)], O_RDWR | O_APPEND | O_CREAT, 
             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (ret == -1)
