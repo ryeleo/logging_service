@@ -1,5 +1,11 @@
 2013 -- Ryan Leonard <ryan.leonard71@gmail.com>
 
+XXX
+Alright, so it has become apparent that a legitimate logging service that runs in userspace and can be written to from kernel space is way way too much effort to implement. So, this project is going to be considered dead, instead we are going to have a mid-sized buffer in the kernel that we will get the location from using kallsyms, then we will read from the buffer while the kernel writes to it. Seeing as there will only be one writer, this will not bring up any reader-writer issues. This buffer in the kernel may need to be accessed in a circular fashion... 
+
+The writer will have to notice when it is going to go over the buffer size and will have to replace its index when appropriate with 0. This is similar to what the reader will do. The reader will never write to the buffer, so the null bytes will always act as separators for strings.
+XXX
+
 There will be support for 31 logs.
 This will run on a simple polling mechanism.
 
